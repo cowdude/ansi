@@ -219,18 +219,21 @@ func parseControlSequenceMode(p *Parser, input []byte) stateFn {
 	switch mode {
 	case 'm':
 		anyOk := false
-		for i := 0; i < len(p.nums); i++ {
+		first := true
+		for codes := p.nums; len(codes) != 0; {
 			// If the final parameter is not specified, and it's not the first, don't reset
 			// e.g. "\x1b[m" and "\x1b[1;0m" reset, but "\x1b[1;m" sets to bold only (no reset)
 			// Not sure where this is in the spec, but it's how iTerm handles it
-			if i != 0 && i == len(p.nums)-1 && !p.nums[i].valid {
+			if !first && len(codes) == 1 && !codes[0].valid {
 				break
 			}
-			action, ok := sgrLookup(p.nums[i].withDefault(0))
-			if ok {
+
+			var action Action
+			if action, codes = sgrLookup(codes); action != nil {
 				p.emit(action)
 				anyOk = true
 			}
+			first = false
 		}
 		if !anyOk {
 			p.ignore()

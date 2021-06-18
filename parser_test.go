@@ -57,6 +57,33 @@ func TestParser_Actions(t *testing.T) {
 			},
 		},
 		{
+			description: "8-bit colours",
+			input: []byte(
+				"normal" +
+					"\x1b[38;5;177mpink" +
+					"\x1b[38;5;226myellow" +
+					"\x1b[48;5;2mgreen bg" +
+					"\x1b[48;5;10mbright green bg" +
+					"\x1b[38;5;232mdark gray fg" +
+					"\x1b[48;5;255mlight gray bg",
+			),
+			actions: []ansi.Action{
+				ansi.Print("normal"),
+				ansi.SetForeground(ansi.ColorRGB8(4, 2, 5)),
+				ansi.Print("pink"),
+				ansi.SetForeground(ansi.ColorRGB8(5, 5, 0)),
+				ansi.Print("yellow"),
+				ansi.SetBackground(ansi.Green),
+				ansi.Print("green bg"),
+				ansi.SetBackground(ansi.BrightGreen),
+				ansi.Print("bright green bg"),
+				ansi.SetForeground(ansi.ColorGray8(0)),
+				ansi.Print("dark gray fg"),
+				ansi.SetBackground(ansi.ColorGray8(23)),
+				ansi.Print("light gray bg"),
+			},
+		},
+		{
 			description: "resetting",
 			input:       []byte("some text\x1b[0mreset\x1b[mreset again\x1b[;31mreset to red"),
 			actions: []ansi.Action{
