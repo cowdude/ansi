@@ -1,4 +1,4 @@
-module github.com/aoldershaw/ansi
+module github.com/cowdude/ansi
 
 go 1.13
 

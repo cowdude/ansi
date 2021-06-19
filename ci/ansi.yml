@@ -11,5 +11,5 @@ resources:
   type: git
   icon: github
   source:
-    uri: https://github.com/aoldershaw/ansi.git
+    uri: https://github.com/cowdude/ansi.git
     branch: master

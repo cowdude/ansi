@@ -3,7 +3,7 @@ package ansi_test
 import (
 	"testing"
 
-	"github.com/aoldershaw/ansi"
+	"github.com/cowdude/ansi"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/format"
 )

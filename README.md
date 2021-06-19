@@ -10,7 +10,7 @@ The intended use-case is for processing streams of log output for
 import (
     "encoding/json"
 
-    "github.com/aoldershaw/ansi"
+    "github.com/cowdude/ansi"
 )
 
 func main() {
@@ -61,7 +61,7 @@ The parser can also be used independently of the interpreter.
 
 ```go
 import (
-    "github.com/aoldershaw/ansi"
+    "github.com/cowdude/ansi"
 )
 
 func main() {
@@ -80,5 +80,5 @@ func main() {
 ## Installation
 
 ```shell script
-go get -u github.com/aoldershaw/ansi
+go get -u github.com/cowdude/ansi
 ```

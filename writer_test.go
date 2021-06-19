@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/aoldershaw/ansi"
+	"github.com/cowdude/ansi"
 	. "github.com/onsi/gomega"
 )
 
