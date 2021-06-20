@@ -30,6 +30,11 @@ const (
 	MinColor4   = Black
 )
 
+const (
+	gray8Low  = 0x0808
+	gray8High = 0xeeee
+)
+
 var Color4Names = [...]string{
 	"black",
 	"red",
@@ -83,26 +88,16 @@ func (c Color) String() string {
 		return Color4Names[c-1]
 
 	case c < MinRGB8+CountRGB8:
-		index := byte(c - MinRGB8)
-		b := (uint32(index%6) * 0xff) / 5
-		g := (uint32((index/36)%6) * 0xff) / 5
-		r := (uint32((index/36)%6) * 0xff) / 5
-		return fmt.Sprintf("rgb8(%d,%d,%d)", r, g, b)
-
+		fallthrough
 	case c < MinGray8+CountGray8:
-		index := byte(c - MinGray8)
-		const (
-			low  = 0x08
-			high = 0xee
-		)
-		r := low + uint32(index)*(high-low)/(CountGray8-1)
-		return fmt.Sprintf("gray(%d)", r)
-
+		fallthrough
 	case c < MinRGB24+CountRGB24:
-		r := uint32((c >> 16) & 0xFF)
-		g := uint32((c >> 8) & 0xFF)
-		b := uint32(c & 0xFF)
-		return fmt.Sprintf("rgb24(%d,%d,%d)", r, g, b)
+		r, g, b, _ := c.RGBA()
+		r >>= 8
+		g >>= 8
+		b >>= 8
+		pack := (r << 16) | (g << 8) | b
+		return fmt.Sprintf("#%06X", pack)
 
 	default: //out of range
 		return ""
@@ -127,29 +122,26 @@ func (c Color) PaletteRGBA(palette ColorPalette) (r, g, b, a uint32) {
 		return
 
 	case c < MinRGB8+CountRGB8:
-		index := byte(c - MinRGB8)
-		b = (uint32(index%6) * 0xffff) / 5
-		g = (uint32((index/36)%6) * 0xffff) / 5
-		r = (uint32((index/36)%6) * 0xffff) / 5
+		index := uint32(c - MinRGB8)
+		b = ((index % 6) * 0xffff) / 5
+		g = (((index / 36) % 6) * 0xffff) / 5
+		r = (((index / 36) % 6) * 0xffff) / 5
 		a = 0xffff
 		return
 
 	case c < MinGray8+CountGray8:
 		index := byte(c - MinGray8)
-		const (
-			low  = 0x08
-			high = 0xee
-		)
-		r = low + uint32(index)*(high-low)/(CountGray8-1)
+		r = gray8Low + uint32(index)*(gray8High-gray8Low)/(CountGray8-1)
 		g = r
 		b = r
 		a = 0xffff
 		return
 
 	case c < MinRGB24+CountRGB24:
-		r = uint32((c >> 16) & 0xFF)
-		g = uint32((c >> 8) & 0xFF)
-		b = uint32(c & 0xFF)
+		packed := uint32(c - MinRGB24)
+		r = (packed >> 16) & 0xFF
+		g = (packed >> 8) & 0xFF
+		b = packed & 0xFF
 		r |= r << 8
 		g |= g << 8
 		b |= b << 8
