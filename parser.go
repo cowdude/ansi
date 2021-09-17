@@ -42,9 +42,9 @@ func NewParser() *Parser {
 	}
 }
 
-func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
+func (p *Parser) Parse(input []byte) (Action, []byte) {
 	if p.action_i < len(p.actions) {
-		return p.nextAction(), true, input
+		return p.nextAction(), input
 	}
 	p.pos = 0
 	p.start = 0
@@ -54,10 +54,14 @@ func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
 	for len(p.actions) == 0 && p.pos < len(input) {
 		p.state = p.state(p, input)
 	}
-	if len(p.actions) == 0 || p.pos >= len(input) {
-		return nil, false, nil
+	if len(p.actions) == 0 {
+		return nil, nil
 	}
-	return p.nextAction(), true, input[p.pos:]
+	var rem []byte
+	if p.pos < len(input) {
+		rem = input[p.pos:]
+	}
+	return p.nextAction(), rem
 }
 
 // Handle cases where a rune is split up over multiple input events - find the
@@ -83,12 +87,9 @@ func (p *Parser) extractDangling(input []byte) []byte {
 func (p *Parser) ParseAll(input []byte) []Action {
 	var actions []Action
 	for {
-		var (
-			action Action
-			ok     bool
-		)
-		action, ok, input = p.Parse(input)
-		if !ok {
+		var action Action
+		action, input = p.Parse(input)
+		if action == nil {
 			break
 		}
 		actions = append(actions, action)

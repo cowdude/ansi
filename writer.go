@@ -48,8 +48,8 @@ func NewWriter(output Output, opts ...WriterOption) *Writer {
 func (w *Writer) Write(input []byte) (int64, error) {
 	n := len(input)
 	for {
-		action, ok, newInput := w.Parser.Parse(input)
-		if !ok {
+		action, newInput := w.Parser.Parse(input)
+		if action == nil {
 			break
 		}
 		if err := w.Action(action); err != nil {
