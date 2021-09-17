@@ -54,7 +54,7 @@ func (p *Parser) Parse(input []byte) (Action, bool, []byte) {
 	for len(p.actions) == 0 && p.pos < len(input) {
 		p.state = p.state(p, input)
 	}
-	if len(p.actions) == 0 || p.pos > len(input) {
+	if len(p.actions) == 0 || p.pos >= len(input) {
 		return nil, false, nil
 	}
 	return p.nextAction(), true, input[p.pos:]
