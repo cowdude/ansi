@@ -28,8 +28,6 @@ type Parser struct {
 	state stateFn
 
 	actions  []Action
-	action_i int
-
 	dangling []byte
 }
 
@@ -42,10 +40,7 @@ func NewParser() *Parser {
 	}
 }
 
-func (p *Parser) Parse(input []byte) (Action, []byte) {
-	if p.action_i < len(p.actions) {
-		return p.nextAction(), input
-	}
+func (p *Parser) Parse(input []byte) ([]Action, []byte) {
 	p.pos = 0
 	p.start = 0
 
@@ -58,10 +53,12 @@ func (p *Parser) Parse(input []byte) (Action, []byte) {
 		return nil, nil
 	}
 	var rem []byte
-	if p.pos < len(input) {
+	if p.pos <= len(input) {
 		rem = input[p.pos:]
 	}
-	return p.nextAction(), rem
+	parsed := p.actions
+	p.actions = p.actions[:0]
+	return parsed, rem
 }
 
 // Handle cases where a rune is split up over multiple input events - find the
@@ -86,26 +83,12 @@ func (p *Parser) extractDangling(input []byte) []byte {
 
 func (p *Parser) ParseAll(input []byte) []Action {
 	var actions []Action
-	for {
-		var action Action
-		action, input = p.Parse(input)
-		if action == nil {
-			break
-		}
-		actions = append(actions, action)
+	for len(input) != 0 {
+		var part []Action
+		part, input = p.Parse(input)
+		actions = append(actions, part...)
 	}
 	return actions
-}
-
-func (p *Parser) nextAction() Action {
-	a := p.actions[p.action_i]
-	if p.action_i == len(p.actions)-1 {
-		p.action_i = 0
-		p.actions = p.actions[:0]
-	} else {
-		p.action_i++
-	}
-	return a
 }
 
 func (p *Parser) emit(action Action) {

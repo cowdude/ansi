@@ -47,13 +47,12 @@ func NewWriter(output Output, opts ...WriterOption) *Writer {
 
 func (w *Writer) Write(input []byte) (int64, error) {
 	n := len(input)
-	for {
-		action, newInput := w.Parser.Parse(input)
-		if action == nil {
-			break
-		}
-		if err := w.Action(action); err != nil {
-			return int64(n - len(input)), err
+	for len(input) != 0 {
+		actions, newInput := w.Parser.Parse(input)
+		for _, action := range actions {
+			if err := w.Action(action); err != nil {
+				return int64(n - len(input)), err
+			}
 		}
 		input = newInput
 	}
